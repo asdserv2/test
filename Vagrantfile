@@ -67,11 +67,17 @@ Vagrant.configure("2") do |config|
 	      mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
 	      yum install -y mdadm smartmontools hdparm gdisk
-              yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-              yum --enablerepo elrepo-kernel install kernel-ml -y
-              grub2-mkconfig -o /boot/grub2/grub.cfg
-              grub2-set-default 0
-              reboot now
+              mdadm --create --verbose /dev/md0 -l 5 -n 4 /dev/sd[b-e]
+              parted -s /dev/md0 mklabel gpt
+              parted /dev/md0 mkpart primary ext4 0% 25%
+              parted /dev/md0 mkpart primary ext4 25% 50%
+              parted /dev/md0 mkpart primary ext4 50% 75%
+              parted /dev/md0 mkpart primary ext4 75% 100%
+              for i in $(seq 1 4); do sudo mkfs.ext4 /dev/md0p$i; done
+              mkdir -p /raid/part{1,2,3,4}
+              for i in $(seq 1 4); do mount /dev/md0p$i /raid/part$i; done
+	      for i in $(seq 1 4); do touch /raid/part$i/file$i; done
+              for i in $(seq 1 4); do echo "/dev/md0p$i /raid/part$i ext4 defaults 0 0" >> /etc/fstab; done
   	  SHELL
 
       end
