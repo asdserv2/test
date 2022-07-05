@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+echo "Start High script";nice -n -21 sh script1 &> high_log &
+
+echo "Start Low script";nice -n 21 sh script2 &> low_log &

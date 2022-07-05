@@ -1,0 +1,11 @@
+#!/bin/bash
+
+start=$(date +%s)
+
+for i in $(seq 1 1900000);do echo $(( $i ** 10 )) >> stepfile2;done
+
+end=$(date +%s)
+
+diff=$(( $end - $start ))
+
+echo "Low nice $diff seconds"
